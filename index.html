@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pxsol Ads — Dashboard de Rendimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F5F2EC; --bg2: #EDEAE2; --ink: #1A1814; --ink2: #6B6760; --ink3: #A09D99;
+    --accent: #C8441A; --accent2: #E8B84B;
+    --green: #2E6B3E; --green-light: #D6EDDD;
+    --red: #A32D2D; --red-light: #FAE8E8;
+    --amber: #8A5010; --amber-light: #FDF0D5;
+    --blue: #1A4A7A; --blue-light: #DDEAF8;
+    --border: #D9D5CC; --radius: 6px;
+  }
+  body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  .hero { background: var(--ink); color: var(--bg); padding: 72px 60px 60px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 360px; height: 360px; border-radius: 50%; background: var(--accent); opacity: 0.1; }
+  .hero-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 16px; }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 5vw, 64px); line-height: 1.05; margin-bottom: 20px; position: relative; z-index: 1; }
+  .hero h1 em { color: var(--accent2); font-style: italic; }
+  .hero-desc { font-size: 15px; color: rgba(255,255,255,0.65); max-width: 600px; margin-bottom: 32px; line-height: 1.7; }
+  .hero-meta { display: flex; gap: 40px; flex-wrap: wrap; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.15); }
+  .hero-meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
+  .hero-meta-item .val { font-size: 14px; font-weight: 500; }
+  .main { max-width: 1080px; margin: 0 auto; padding: 0 40px 80px; }
+  .section { margin-top: 56px; }
+  .sec-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+  .sec-num { font-family: 'DM Serif Display', serif; font-size: 42px; line-height: 1; color: var(--accent); opacity: 0.35; }
+  .sec-title { font-family: 'DM Serif Display', serif; font-size: 24px; }
+  .sec-sub { font-size: 12px; color: var(--ink3); margin-top: 3px; font-family: 'DM Mono', monospace; }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 6px; font-weight: 500; }
+  .metric-value { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1.1; }
+  .metric-sub { font-size: 11px; color: var(--ink3); margin-top: 3px; font-family: 'DM Mono', monospace; }
+  .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink3); padding: 8px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg2); }
+  .num { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .b-red { background: var(--red-light); color: var(--red); }
+  .b-amber { background: var(--amber-light); color: var(--amber); }
+  .b-green { background: var(--green-light); color: var(--green); }
+  .b-blue { background: var(--blue-light); color: var(--blue); }
+  .c-green { color: var(--green); font-weight: 500; }
+  .c-red { color: var(--red); font-weight: 500; }
+  .c-amber { color: var(--amber); font-weight: 500; }
+  .row-alert td { background: var(--red-light); }
+  .row-warn td { background: var(--amber-light); }
+  .row-ok td { background: var(--green-light); }
+  .insight { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; font-size: 13px; color: var(--ink2); margin-top: 12px; }
+  .insight strong { color: var(--ink); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+  .report-link { display: flex; align-items: center; gap: 16px; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-decoration: none; color: var(--ink); transition: all 0.15s; margin-bottom: 12px; }
+  .report-link:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .report-link:hover .report-link-sub { color: rgba(255,255,255,0.5); }
+  .report-link-icon { width: 40px; height: 40px; background: var(--bg2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .report-link-title { font-weight: 600; font-size: 15px; }
+  .report-link-sub { font-size: 12px; color: var(--ink3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .footer { background: var(--ink); color: rgba(255,255,255,0.4); text-align: center; padding: 40px 20px; font-size: 12px; font-family: 'DM Mono', monospace; }
+  .footer span { color: rgba(255,255,255,0.7); }
+  .callout { border-left: 3px solid var(--accent2); background: var(--amber-light); padding: 12px 16px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 13px; color: var(--amber); margin-bottom: 20px; }
+  .callout strong { color: var(--ink); }
+  .rank { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Pxsol Ads · Dashboard público · Acceso permanente</div>
+  <h1>Rendimiento<br><em>Semanal</em> de Campañas</h1>
+  <p class="hero-desc">Panel de análisis de ROI, conversiones y cancelaciones para hoteles en la plataforma Pxsol Ads. Actualizado semanalmente con datos de las semanas 18 y 20 de 2026.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="label">Período analizado</div><div class="val">Semanas 18 y 20 · mayo 2026</div></div>
+    <div class="hero-meta-item"><div class="label">Hoteles monitoreados</div><div class="val">93 en S18 · 89 en S20</div></div>
+    <div class="hero-meta-item"><div class="label">Última actualización</div><div class="val">22 de mayo, 2026</div></div>
+    <div class="hero-meta-item"><div class="label">Plataforma</div><div class="val">Pxsol Ads</div></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- KPIs GLOBALES -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-num">01</div>
+      <div>
+        <div class="sec-title">KPIs globales — S18 vs S20</div>
+        <div class="sec-sub">Comparativo de semana completa vs semana parcial</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin-bottom:10px;">Semana 18 — 3 al 9 de mayo (7 días)</p>
+        <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+          <div class="metric"><div class="metric-label">Gasto total</div><div class="metric-value">$2.88M</div><div class="metric-sub">93 hoteles</div></div>
+          <div class="metric"><div class="metric-label">Reservas</div><div class="metric-value">63</div><div class="metric-sub">confirmadas</div></div>
+          <div class="metric"><div class="metric-label">Cancelaciones</div><div class="metric-value c-red">46</div><div class="metric-sub">25 hoteles</div></div>
+          <div class="metric"><div class="metric-label">Monto cancelado</div><div class="metric-value">$4.84M</div><div class="metric-sub">H.Cancelaciones</div></div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin-bottom:10px;">Semana 20 — 17 al 21 de mayo (5 días parciales)</p>
+        <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+          <div class="metric"><div class="metric-label">Cancelaciones</div><div class="metric-value c-amber">27</div><div class="metric-sub">19 hoteles</div></div>
+          <div class="metric"><div class="metric-label">Monto cancelado</div><div class="metric-value c-red">$5.78M</div><div class="metric-sub">+19% vs S18</div></div>
+          <div class="metric"><div class="metric-label">Hoteles sin conv.</div><div class="metric-value c-red">21</div><div class="metric-sub">que sí convirtieron en S18</div></div>
+          <div class="metric"><div class="metric-label">Monto en riesgo</div><div class="metric-value c-amber">$750K+</div><div class="metric-sub">gasto sin retorno</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP PERFORMERS S18 -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-num">02</div>
+      <div>
+        <div class="sec-title">Top performers — Semana 18</div>
+        <div class="sec-sub">Hoteles con mayor ROI y reservas confirmadas</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Hotel</th><th class="num">Reservas</th><th class="num">Noches</th><th class="num">Ingresos PX</th><th class="num">ROI</th><th>Estado S20</th></tr></thead>
+          <tbody>
+            <tr class="row-ok"><td class="rank">1</td><td><strong>Hotel & Spa La Cheminée</strong></td><td class="num">1</td><td class="num">8</td><td class="num">$435.770</td><td class="num c-green">+590%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">2</td><td>Hotel Michelangelo</td><td class="num">1</td><td class="num">8</td><td class="num">$318.477</td><td class="num c-green">+471%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">3</td><td>Patagonia Travellers Hostel</td><td class="num">2</td><td class="num">8</td><td class="num">$97.350</td><td class="num c-green">+348%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">4</td><td>Cabañas Hermansen</td><td class="num">4</td><td class="num">14</td><td class="num">$365.118</td><td class="num c-green">+277%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">5</td><td>Hotel Raíces Aconcagua</td><td class="num">2</td><td class="num">7</td><td class="num">$137.465</td><td class="num c-green">+268%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">6</td><td>Hotel Borde Luz</td><td class="num">3</td><td class="num">6</td><td class="num">$141.121</td><td class="num c-green">+238%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">7</td><td>La Casa de Melgar</td><td class="num">3</td><td class="num">10</td><td class="num">$155.031</td><td class="num c-green">+236%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr class="row-ok"><td class="rank">8</td><td>HDA Hotel & Spa All Inclusive</td><td class="num">2</td><td class="num">5</td><td class="num">$276.528</td><td class="num c-green">+232%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+            <tr><td class="rank">9</td><td>Diplomatic Hotel</td><td class="num">6</td><td class="num">29</td><td class="num">$1.040.574</td><td class="num c-green">+213%</td><td><span class="badge b-amber">Bajó a +50%</span></td></tr>
+            <tr><td class="rank">10</td><td>718 Rufino Petit Hotel</td><td class="num">1</td><td class="num">4</td><td class="num">$71.568</td><td class="num c-green">+208%</td><td><span class="badge b-red">Sin conv. S20</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Patrón preocupante:</strong> 9 de los 10 mejores performers de S18 muestran 0 reservas en S20. El único que mantiene conversión es Diplomatic Hotel (aunque con caída). Investigar si hay un factor estacional o de inventario que afecta a todo el grupo.
+    </div>
+  </div>
+
+  <!-- HOTELES QUE MANTIENEN BUEN ROI EN S20 -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-num">03</div>
+      <div>
+        <div class="sec-title">Hoteles con rendimiento sostenido S18 → S20</div>
+        <div class="sec-sub">Convirtieron en ambas semanas con ROI positivo</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Hotel</th><th class="num">Res. S18</th><th class="num">ROI S18</th><th class="num">Res. S20</th><th class="num">ROI S20</th><th>Tendencia</th></tr></thead>
+          <tbody>
+            <tr class="row-ok"><td><strong>Dakar Hoteles</strong></td><td class="num">7</td><td class="num c-green">+81%</td><td class="num">11</td><td class="num c-green">+216%</td><td><span class="badge b-green">Mejora</span></td></tr>
+            <tr class="row-ok"><td>Piattelli Wine Resort</td><td class="num">3</td><td class="num c-green">+56%</td><td class="num">5</td><td class="num c-green">+77%</td><td><span class="badge b-green">Mejora</span></td></tr>
+            <tr class="row-ok"><td>Hotel Plaza</td><td class="num">2</td><td class="num c-green">+37%</td><td class="num">3</td><td class="num c-green">+235%</td><td><span class="badge b-green">Mejora notable</span></td></tr>
+            <tr class="row-ok"><td>Manantiales Mercedes</td><td class="num">2</td><td class="num c-green">+42%</td><td class="num">2</td><td class="num c-green">+189%</td><td><span class="badge b-green">Mejora</span></td></tr>
+            <tr class="row-ok"><td>La Aldea de la Selva</td><td class="num">4</td><td class="num c-green">+29%</td><td class="num">5</td><td class="num c-green">+50%</td><td><span class="badge b-green">Mejora</span></td></tr>
+            <tr class="row-ok"><td>Rayentray Grand Hotel</td><td class="num">4</td><td class="num c-green">+6%</td><td class="num">3</td><td class="num c-green">+144%</td><td><span class="badge b-green">Mejora fuerte</span></td></tr>
+            <tr class="row-ok"><td>Farnese Apart Spa MdP</td><td class="num">2</td><td class="num c-red">–2%</td><td class="num">2</td><td class="num c-green">+58%</td><td><span class="badge b-green">Recuperó</span></td></tr>
+            <tr><td>Cabañas Aldea Nevada</td><td class="num">3</td><td class="num c-green">+217%</td><td class="num">2</td><td class="num c-green">+208%</td><td><span class="badge b-green">Estable</span></td></tr>
+            <tr><td>Diplomatic Hotel</td><td class="num">6</td><td class="num c-green">+213%</td><td class="num">4</td><td class="num c-green">+50%</td><td><span class="badge b-amber">Baja pero sigue</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCELACIONES CRÍTICAS S20 -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-num">04</div>
+      <div>
+        <div class="sec-title">Alertas de cancelación — S20</div>
+        <div class="sec-sub">Hoteles donde el monto cancelado supera o iguala las ventas nuevas</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Nota:</strong> S20 tiene solo 5 días de datos. Algunos patrones pueden ajustarse al cierre de la semana.
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Hotel</th><th class="num">H.Ventas S20</th><th class="num">H.Cancelac. S20</th><th class="num">Relación</th><th class="num">ROI S20</th></tr></thead>
+          <tbody>
+            <tr class="row-alert"><td><strong>Villa Mansa Wine Hotel</strong></td><td class="num">$192.574</td><td class="num c-red">$550.159</td><td class="num c-red">2.9× ventas</td><td class="num c-green">+10%</td></tr>
+            <tr class="row-alert"><td>Reñaca House Hotel</td><td class="num">$539.810</td><td class="num c-red">$844.214</td><td class="num c-red">1.6× ventas</td><td class="num c-green">+144%</td></tr>
+            <tr class="row-alert"><td>Hotel Quinto Centenario</td><td class="num">$654.208</td><td class="num c-red">$671.660</td><td class="num c-red">1.03× ventas</td><td class="num c-red">–61%</td></tr>
+            <tr class="row-alert"><td>Cabañas La Bella Durmiente</td><td class="num">$341.225</td><td class="num c-red">$459.342</td><td class="num c-red">1.3× ventas</td><td class="num c-green">+103%</td></tr>
+            <tr class="row-warn"><td>Maré Hotel Boutique</td><td class="num">$211.236</td><td class="num">$341.225</td><td class="num c-amber">1.6× ventas</td><td class="num c-green">+6%</td></tr>
+            <tr class="row-warn"><td>Diplomatic Hotel</td><td class="num">$3.314.400</td><td class="num">$1.082.090</td><td class="num">33% ventas</td><td class="num c-green">+50%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFORMES DETALLADOS -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-num">05</div>
+      <div>
+        <div class="sec-title">Informes detallados</div>
+        <div class="sec-sub">Análisis completos por semana · Generados el 22 de mayo de 2026</div>
+      </div>
+    </div>
+
+    <a href="informe_pxsol_ads_conversacion.html" class="report-link">
+      <div class="report-link-icon">📊</div>
+      <div>
+        <div class="report-link-title">Informe ROI — Semana 18</div>
+        <div class="report-link-sub">ROI · Inventario · CPC · Conversiones Jue–Dom · 6 secciones</div>
+      </div>
+    </a>
+
+    <a href="informe_cancelaciones_s18_s20.html" class="report-link">
+      <div class="report-link-icon">🔴</div>
+      <div>
+        <div class="report-link-title">Informe Cancelaciones — S18 vs S20</div>
+        <div class="report-link-sub">Balance neto · Montos cancelados · Reincidentes · Nuevas alertas · 6 secciones</div>
+      </div>
+    </a>
+
+    <div class="insight" style="margin-top:16px">
+      <strong>Repositorio privado:</strong> Datos fuente (CSV), historial de análisis y plantillas de comunicación disponibles en el repositorio privado de GitHub del equipo Pxsol. Acceso restringido a colaboradores autorizados.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Pxsol Ads · Dashboard público · Actualizado el <span>22 de mayo de 2026</span> · Semanas <span>18–20</span> · <span>pxsol.com</span>
+</div>
+
+</body>
+</html>

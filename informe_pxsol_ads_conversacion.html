@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pxsol Ads — Análisis Semana 18</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F2EC;
+    --bg2: #EDEAE2;
+    --ink: #1A1814;
+    --ink2: #6B6760;
+    --ink3: #A09D99;
+    --accent: #C8441A;
+    --accent2: #E8B84B;
+    --green: #2E6B3E;
+    --green-light: #D6EDDD;
+    --red: #A32D2D;
+    --red-light: #FAE8E8;
+    --amber: #8A5010;
+    --amber-light: #FDF0D5;
+    --blue: #1A4A7A;
+    --blue-light: #DDEAF8;
+    --purple: #4A3A8A;
+    --purple-light: #EBEBFA;
+    --border: #D9D5CC;
+    --radius: 6px;
+  }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 80px 60px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.12;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 40%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--accent2);
+    opacity: 0.10;
+  }
+  .cover-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    line-height: 1.05;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .cover h1 em { color: var(--accent2); font-style: italic; }
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .cover-meta-item { }
+  .cover-meta-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+  .cover-meta-value { font-size: 15px; font-weight: 500; }
+
+  /* ── NAV ── */
+  .toc {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 60px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .toc-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink3); margin-right: 8px; }
+  .toc a {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink2);
+    text-decoration: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .toc a:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* ── LAYOUT ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 0 40px 80px; }
+
+  /* ── SECTION ── */
+  .section {
+    margin-top: 64px;
+    scroll-margin-top: 70px;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.4;
+    min-width: 48px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--ink3);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── QUESTION BLOCK ── */
+  .q-block {
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .q-icon {
+    width: 32px; height: 32px;
+    background: var(--accent2);
+    color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .q-text { font-size: 15px; line-height: 1.5; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid var(--accent2);
+    background: var(--amber-light);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13px;
+    color: var(--amber);
+    margin-bottom: 20px;
+  }
+  .callout strong { color: var(--ink); }
+
+  /* ── METRICS GRID ── */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 6px; font-weight: 500; }
+  .metric-value { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.1; color: var(--ink); }
+  .metric-sub { font-size: 12px; color: var(--ink3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink3);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg2); }
+  .num { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .card-table { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .b-red { background: var(--red-light); color: var(--red); }
+  .b-amber { background: var(--amber-light); color: var(--amber); }
+  .b-green { background: var(--green-light); color: var(--green); }
+  .b-blue { background: var(--blue-light); color: var(--blue); }
+  .b-purple { background: var(--purple-light); color: var(--purple); }
+
+  /* ── COLORS ── */
+  .c-green { color: var(--green); font-weight: 500; }
+  .c-red { color: var(--red); font-weight: 500; }
+  .c-amber { color: var(--amber); font-weight: 500; }
+
+  /* ── TWO COLUMN ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── DAY PILL ── */
+  .day-thu { background: var(--blue-light); color: var(--blue); display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .day-fri { background: var(--green-light); color: var(--green); display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .day-sat { background: var(--purple-light); color: var(--purple); display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .day-sun { background: var(--amber-light); color: var(--amber); display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+  /* ── DAY STATS GRID ── */
+  .day-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+  @media (max-width: 600px) { .day-grid { grid-template-columns: repeat(2,1fr); } }
+  .day-card { border-radius: var(--radius); padding: 14px 16px; text-align: center; }
+  .day-card-thu { background: var(--blue-light); }
+  .day-card-fri { background: var(--green-light); }
+  .day-card-sat { background: var(--purple-light); }
+  .day-card-sun { background: var(--amber-light); }
+  .day-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; }
+  .day-card-value { font-family: 'DM Serif Display', serif; font-size: 26px; margin: 4px 0 2px; }
+  .day-card-sub { font-size: 11px; opacity: 0.7; font-family: 'DM Mono', monospace; }
+
+  /* ── INSIGHT BOX ── */
+  .insight {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--ink2);
+    margin-top: 16px;
+  }
+  .insight strong { color: var(--ink); }
+
+  /* ── RANK LABEL ── */
+  .rank { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); min-width: 20px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+  .footer span { color: rgba(255,255,255,0.7); }
+
+  /* ── ALERT ROW ── */
+  .row-alert td { background: var(--red-light); }
+  .row-warn td { background: var(--amber-light); }
+
+  /* ── INV BAR ── */
+  .inv-context { font-size: 12px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-label">Pxsol Ads · Análisis de rendimiento</div>
+  <h1>Informe<br><em>Semana 18</em><br>& Inventario</h1>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fecha</div>
+      <div class="cover-meta-value">Jueves 22 de mayo, 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Semana analizada</div>
+      <div class="cover-meta-value">Semana 18 (lun 3 – mié 6 mayo)</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fuente</div>
+      <div class="cover-meta-value">Informes Pxsol Ads · Google Sheets</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Semanas históricas</div>
+      <div class="cover-meta-value">Sem. 0 – 18 (13.691 registros)</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="toc">
+  <span class="toc-label">Secciones</span>
+  <a href="#s1">ROI Semana 18</a>
+  <a href="#s2">Cuentas en caída</a>
+  <a href="#s3">Alto gasto / pocas reservas</a>
+  <a href="#s4">CPC & Campañas limitadas</a>
+  <a href="#s5">Inventario S17–S18</a>
+  <a href="#s6">Conversión Jue–Dom</a>
+</nav>
+
+<div class="main">
+
+  <!-- CONTEXT -->
+  <div class="section">
+    <div class="callout">
+      <strong>Contexto importante:</strong> La semana 18 tiene datos de solo 4 días (lun 3 – mié 6 de mayo). Quedan días de conversión pendientes — el ROI actual subestima el real. Muchas cuentas muestran ROI –100% porque aún no se registraron reservas, no porque no vayan a convertir.
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Gasto total sem. 18</div>
+        <div class="metric-value">$2.88M</div>
+        <div class="metric-sub">4 días registrados</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Reservas confirmadas</div>
+        <div class="metric-value">63</div>
+        <div class="metric-sub">Semana incompleta</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Ingresos generados</div>
+        <div class="metric-value">$3.03M</div>
+        <div class="metric-sub">Conversiones parciales</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">ROI sem. actual</div>
+        <div class="metric-value c-amber">5.2%</div>
+        <div class="metric-sub">Crecerá al cerrar sem.</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">Rendimiento diario semana 18</h3>
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Día</th><th>Fecha</th><th class="num">Gasto</th><th class="num">Ingresos</th><th class="num">Reservas</th><th class="num">Clicks</th><th class="num">Conv.</th><th class="num">ROI</th></tr></thead>
+          <tbody>
+            <tr><td>Lunes</td><td>3-may</td><td class="num">$757.630</td><td class="num">$334.926</td><td class="num">13</td><td class="num">7.657</td><td class="num">0.17%</td><td class="num c-red">–55.8%</td></tr>
+            <tr><td>Martes</td><td>4-may</td><td class="num">$718.731</td><td class="num">$516.105</td><td class="num">17</td><td class="num">6.513</td><td class="num">0.26%</td><td class="num c-red">–28.2%</td></tr>
+            <tr><td>Miércoles</td><td>5-may</td><td class="num">$704.096</td><td class="num">$1.126.469</td><td class="num">15</td><td class="num">5.838</td><td class="num">0.26%</td><td class="num c-green">+60.0%</td></tr>
+            <tr><td>Jueves</td><td>6-may</td><td class="num">$703.996</td><td class="num">$1.056.096</td><td class="num">18</td><td class="num">6.530</td><td class="num">0.28%</td><td class="num c-green">+50.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div>
+        <div class="section-title">Top 10 peor ROI — semana 18</div>
+        <div class="section-sub">Cuentas con gasto &gt; $10.000 · ROI calculado sobre datos parciales</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-icon">U</div>
+      <div class="q-text">Listado de cuentas top 10 de esta semana con el peor ROI</div>
+    </div>
+
+    <div class="callout">
+      ROI –100% no necesariamente indica crisis — puede ser lag de conversión. Los hoteles con 0 reservas pueden convertir en los días restantes de la semana.
+    </div>
+
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Hotel</th><th class="num">Gasto</th><th class="num">Ingresos</th><th class="num">Reservas</th><th class="num">Clicks</th><th class="num">ROI</th><th>Alerta</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-alert"><td class="rank">1</td><td><strong>Raíces Esturión Hotel</strong></td><td class="num">$119.828</td><td class="num">$0</td><td class="num">0</td><td class="num">845</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">2</td><td>Hotel Molino de Viento</td><td class="num">$60.757</td><td class="num">$0</td><td class="num">0</td><td class="num">160</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">3</td><td>Hotel Sunset Beach</td><td class="num">$54.772</td><td class="num">$0</td><td class="num">0</td><td class="num">1.572</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">4</td><td>CRISTAL HOTEL 3 estrellas</td><td class="num">$45.725</td><td class="num">$0</td><td class="num">0</td><td class="num">286</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">5</td><td>Patagonia Hotel</td><td class="num">$42.562</td><td class="num">$0</td><td class="num">0</td><td class="num">145</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">6</td><td>Mitico Puelo Lodge</td><td class="num">$41.504</td><td class="num">$0</td><td class="num">0</td><td class="num">304</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">7</td><td>Villaggio Hotel Boutique</td><td class="num">$23.869</td><td class="num">$0</td><td class="num">0</td><td class="num">318</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">8</td><td>Hotel Michelangelo</td><td class="num">$24.420</td><td class="num">$0</td><td class="num">0</td><td class="num">320</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">9</td><td>Manantiales Htls. Mercedes</td><td class="num">$18.367</td><td class="num">$0</td><td class="num">0</td><td class="num">60</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">10</td><td>Soltigua Apart Hotel</td><td class="num">$21.130</td><td class="num">$0</td><td class="num">0</td><td class="num">95</td><td class="num c-red">–100%</td><td><span class="badge b-red">Crítico</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div>
+        <div class="section-title">Cuentas con ROI en caída 2–3 semanas</div>
+        <div class="section-sub">Tendencia descendente sostenida — señal de deterioro estructural</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-icon">U</div>
+      <div class="q-text">Cuentas que vienen cayendo hace 2-3 semanas</div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Caída 3 semanas (S15→S16→S17) <span class="badge b-red" style="margin-left:6px">Crítico</span></p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hotel</th><th class="num">S15</th><th class="num">S16</th><th class="num">S17</th></tr></thead>
+              <tbody>
+                <tr><td>Patagonia Hotel</td><td class="num c-green">43%</td><td class="num c-amber">35%</td><td class="num c-red">–80%</td></tr>
+                <tr><td>Rayentray Grand Hotel</td><td class="num c-green">292%</td><td class="num c-amber">232%</td><td class="num c-amber">50%</td></tr>
+                <tr><td>Hotel del Jardín</td><td class="num c-green">300%</td><td class="num c-amber">81%</td><td class="num c-amber">34%</td></tr>
+                <tr><td>Cabañas Aldea Nevada</td><td class="num c-green">245%</td><td class="num c-amber">137%</td><td class="num c-amber">130%</td></tr>
+                <tr><td>Villa Don Tomás Apart</td><td class="num c-green">216%</td><td class="num c-amber">130%</td><td class="num c-amber">103%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Caída últimas 2 semanas (S16→S17→S18) <span class="badge b-amber" style="margin-left:6px">Atención</span></p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hotel</th><th class="num">S16</th><th class="num">S17</th><th class="num">S18</th></tr></thead>
+              <tbody>
+                <tr><td>Hotel Sunset Beach</td><td class="num c-green">291%</td><td class="num c-amber">50%</td><td class="num c-red">–100%</td></tr>
+                <tr><td>La Aldea de la Selva</td><td class="num c-green">341%</td><td class="num c-amber">25%</td><td class="num c-red">–42%</td></tr>
+                <tr><td>Maré Hotel Boutique</td><td class="num c-green">598%</td><td class="num c-green">394%</td><td class="num c-amber">9%</td></tr>
+                <tr><td>Hotel Agua Nativa</td><td class="num c-green">226%</td><td class="num c-green">143%</td><td class="num c-red">–50%</td></tr>
+                <tr><td>Hotel Termas de Balde</td><td class="num c-green">90%</td><td class="num c-amber">28%</td><td class="num c-red">–100%</td></tr>
+                <tr><td>Gran Hotel Mercedes</td><td class="num c-green">108%</td><td class="num c-red">–29%</td><td class="num c-red">–100%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Hotel Sunset Beach</strong> es el caso más urgente: combina caída de 3 semanas, CPC subiendo +63% e impresiones cayendo –71%. Señal de campaña en deterioro acelerado.
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div>
+        <div class="section-title">Alto gasto, pocas o cero reservas</div>
+        <div class="section-sub">Semana 18 · Cuentas con gasto alto y conversión nula o casi nula</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-icon">U</div>
+      <div class="q-text">Cuentas con mucho gasto y pocas reservas</div>
+    </div>
+
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Hotel</th><th class="num">Gasto</th><th class="num">Reservas</th><th class="num">Clicks</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr class="row-alert"><td class="rank">1</td><td><strong>Raíces Esturión Hotel</strong></td><td class="num">$119.828</td><td class="num">0</td><td class="num">845</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">2</td><td>Hotel Molino de Viento</td><td class="num">$60.757</td><td class="num">0</td><td class="num">160</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">3</td><td>Hotel Sunset Beach</td><td class="num">$54.772</td><td class="num">0</td><td class="num">1.572</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">4</td><td>CRISTAL HOTEL 3 estrellas</td><td class="num">$45.725</td><td class="num">0</td><td class="num">286</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">5</td><td>Patagonia Hotel</td><td class="num">$42.562</td><td class="num">0</td><td class="num">145</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">6</td><td>Mitico Puelo Lodge</td><td class="num">$41.504</td><td class="num">0</td><td class="num">304</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-warn"><td class="rank">7</td><td>La Aldea de la Selva</td><td class="num">$205.027</td><td class="num">2</td><td class="num">2.567</td><td><span class="badge b-amber">Revisar</span></td></tr>
+            <tr class="row-warn"><td class="rank">8</td><td>Diplomatic Hotel</td><td class="num">$190.345</td><td class="num">2</td><td class="num">831</td><td><span class="badge b-amber">Revisar</span></td></tr>
+            <tr class="row-warn"><td class="rank">9</td><td>Rayentray Grand Hotel</td><td class="num">$76.210</td><td class="num">1</td><td class="num">1.494</td><td><span class="badge b-amber">Revisar</span></td></tr>
+            <tr class="row-warn"><td class="rank">10</td><td>Hotel Agua Nativa</td><td class="num">$55.589</td><td class="num">2</td><td class="num">397</td><td><span class="badge b-amber">Revisar</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div>
+        <div class="section-title">CPC disparado & campañas limitadas</div>
+        <div class="section-sub">Comparativo semana 17 vs semana 18</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-icon">U</div>
+      <div class="q-text">¿CPC disparado? ¿Campañas limitadas?</div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">CPC con mayor aumento S17→S18 <span class="badge b-red" style="margin-left:6px">Urgente</span></p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hotel</th><th class="num">CPC S17</th><th class="num">CPC S18</th><th class="num">Variación</th></tr></thead>
+              <tbody>
+                <tr><td>Bungalows Mexico</td><td class="num">$21</td><td class="num">$97</td><td class="num c-red"><strong>+365%</strong></td></tr>
+                <tr><td>El Rinconcito Acogedor</td><td class="num">$6</td><td class="num">$15</td><td class="num c-red">+142%</td></tr>
+                <tr><td>La Casa de Melgar</td><td class="num">$187</td><td class="num">$385</td><td class="num c-red">+106%</td></tr>
+                <tr><td>Casa Lahusen</td><td class="num">$188</td><td class="num">$369</td><td class="num c-red">+96%</td></tr>
+                <tr><td>Hotel Michelangelo</td><td class="num">$42</td><td class="num">$76</td><td class="num c-red">+83%</td></tr>
+                <tr><td>Hotel Sunset Beach</td><td class="num">$21</td><td class="num">$35</td><td class="num c-red">+63%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Impresiones caídas &gt;50% <span class="badge b-amber" style="margin-left:6px">Posiblemente limitadas</span></p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hotel</th><th class="num">Impr. S17</th><th class="num">Impr. S18</th><th class="num">Caída</th></tr></thead>
+              <tbody>
+                <tr><td>Bungalows Mexico</td><td class="num">22.170</td><td class="num">4.320</td><td class="num c-red">–81%</td></tr>
+                <tr><td>El Rinconcito Acogedor</td><td class="num">63.122</td><td class="num">12.862</td><td class="num c-red">–80%</td></tr>
+                <tr><td>Hotel Quinto Centenario</td><td class="num">112.670</td><td class="num">26.816</td><td class="num c-red">–76%</td></tr>
+                <tr><td>Hotel Sunset Beach</td><td class="num">36.737</td><td class="num">10.564</td><td class="num c-red">–71%</td></tr>
+                <tr><td>Hotel Michelangelo</td><td class="num">11.709</td><td class="num">4.058</td><td class="num c-red">–65%</td></tr>
+                <tr><td>La Aldea de la Selva</td><td class="num">130.604</td><td class="num">57.526</td><td class="num c-amber">–56%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Bungalows Mexico</strong> tiene el CPC más disparado de toda la base: pasó de $21 a $97 por click (+365%). Las impresiones cayeron –81%. Señal clara de campaña limitada o puja descontrolada — auditar urgente.
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div>
+        <div class="section-title">Inventario semanas 17 & 18</div>
+        <div class="section-sub">91 hoteles con inventario activo · Ordenados de menor a mayor stock acumulado</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-icon">U</div>
+      <div class="q-text">Dame un informe de inventario, de la semana 17 y 18 quiero saber cuáles son los hoteles con menor cantidad de inventario</div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Hoteles con inventario</div>
+        <div class="metric-value">91</div>
+        <div class="metric-sub">Sem. 17 y/o 18</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Inventario mínimo</div>
+        <div class="metric-value">5.345</div>
+        <div class="metric-sub">HJ by Wyndham Neuquén</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Mediana</div>
+        <div class="metric-value">73.332</div>
+        <div class="metric-sub">Punto de corte típico</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Inventario máximo</div>
+        <div class="metric-value">103.231</div>
+        <div class="metric-sub">Villa Mansa / Rig Veda</div>
+      </div>
+    </div>
+
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Hotel</th><th class="num">Inv. S17</th><th class="num">Inv. S18</th><th class="num">Total</th><th class="num">Variación</th><th class="num">Res. S17</th><th class="num">Res. S18</th><th>Nivel</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-alert"><td class="rank">1</td><td>HJ by Wyndham Neuquén</td><td class="num">3.113</td><td class="num">2.232</td><td class="num"><strong>5.345</strong></td><td class="num c-red">–28%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">2</td><td>Cielo Aparta Suites</td><td class="num">7.179</td><td class="num">0</td><td class="num"><strong>7.179</strong></td><td class="num c-red">–100%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-red">Sin stock S18</span></td></tr>
+            <tr class="row-alert"><td class="rank">3</td><td>Abedul Mar de las Pampas</td><td class="num">9.167</td><td class="num">3.637</td><td class="num"><strong>12.804</strong></td><td class="num c-red">–60%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-alert"><td class="rank">4</td><td>La Domanda - Hostería</td><td class="num">12.846</td><td class="num">4.273</td><td class="num"><strong>17.119</strong></td><td class="num c-red">–67%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-red">Crítico</span></td></tr>
+            <tr class="row-warn"><td class="rank">5</td><td>Raíces Esturión Hotel</td><td class="num">21.789</td><td class="num">11.412</td><td class="num"><strong>33.201</strong></td><td class="num c-red">–48%</td><td class="num">3</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr class="row-warn"><td class="rank">6</td><td>Mitico Puelo Lodge</td><td class="num">20.845</td><td class="num">15.870</td><td class="num"><strong>36.715</strong></td><td class="num c-red">–24%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr class="row-warn"><td class="rank">7</td><td>América Apart Hotel</td><td class="num">19.168</td><td class="num">17.992</td><td class="num"><strong>37.160</strong></td><td class="num c-red">–6%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr class="row-warn"><td class="rank">8</td><td>Los Espinillos Hotel & Spa</td><td class="num">25.278</td><td class="num">13.904</td><td class="num"><strong>39.182</strong></td><td class="num c-red">–45%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr class="row-warn"><td class="rank">9</td><td>Hotel Raíces Aconcagua</td><td class="num">38.256</td><td class="num">3.500</td><td class="num"><strong>41.756</strong></td><td class="num c-red">–91%</td><td class="num">0</td><td class="num">2</td><td><span class="badge b-red">Casi sin stock</span></td></tr>
+            <tr class="row-warn"><td class="rank">10</td><td>Cabañas Hermansen</td><td class="num">23.357</td><td class="num">18.555</td><td class="num"><strong>41.912</strong></td><td class="num c-red">–21%</td><td class="num">0</td><td class="num">3</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr><td class="rank">11</td><td>EQUS Posada de Campo</td><td class="num">26.258</td><td class="num">16.853</td><td class="num"><strong>43.111</strong></td><td class="num c-red">–36%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr><td class="rank">12</td><td>Urbana Suites</td><td class="num">32.487</td><td class="num">12.690</td><td class="num"><strong>45.177</strong></td><td class="num c-red">–61%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr><td class="rank">13</td><td>HDA Hotel & Spa All Inclusive</td><td class="num">43.016</td><td class="num">4.000</td><td class="num"><strong>47.016</strong></td><td class="num c-red">–91%</td><td class="num">0</td><td class="num">2</td><td><span class="badge b-red">Casi sin stock</span></td></tr>
+            <tr><td class="rank">14</td><td>Estancia La Bandada</td><td class="num">30.905</td><td class="num">16.299</td><td class="num"><strong>47.204</strong></td><td class="num c-red">–47%</td><td class="num">0</td><td class="num">0</td><td><span class="badge b-amber">Bajo</span></td></tr>
+            <tr><td class="rank">15</td><td>La Anita Lofts de Montaña</td><td class="num">28.239</td><td class="num">19.337</td><td class="num"><strong>47.576</strong></td><td class="num c-red">–32%</td><td class="num">0</td><td class="num">1</td><td><span class="badge b-amber">Bajo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Dato clave:</strong> La mayoría de los hoteles con inventario bajo también muestran 0 reservas en ambas semanas. Antes de pausar campañas o ajustar pujas, verificar que tengan habitaciones cargadas en el sistema. Sin inventario, no hay conversión posible.
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div>
+        <div class="section-title">Mejores conversiones jueves a domingo</div>
+        <div class="section-sub">Histórico completo · mín. 10 reservas y 100 clicks para relevancia estadística</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-icon">U</div>
+      <div class="q-text">¿Cuáles son los hoteles que mejor convierten de jueves a domingo?</div>
+    </div>
+
+    <div class="day-grid">
+      <div class="day-card day-card-thu">
+        <div class="day-card-label" style="color:var(--blue)">Jueves</div>
+        <div class="day-card-value" style="color:var(--blue)">0.33%</div>
+        <div class="day-card-sub" style="color:var(--blue)">407 res. históricas</div>
+      </div>
+      <div class="day-card day-card-fri">
+        <div class="day-card-label" style="color:var(--green)">Viernes</div>
+        <div class="day-card-value" style="color:var(--green)">0.36%</div>
+        <div class="day-card-sub" style="color:var(--green)">429 res. históricas</div>
+      </div>
+      <div class="day-card day-card-sat">
+        <div class="day-card-label" style="color:var(--purple)">Sábado</div>
+        <div class="day-card-value" style="color:var(--purple)">0.29%</div>
+        <div class="day-card-sub" style="color:var(--purple)">361 res. históricas</div>
+      </div>
+      <div class="day-card day-card-sun">
+        <div class="day-card-label" style="color:var(--amber)">Domingo</div>
+        <div class="day-card-value" style="color:var(--amber)">0.28%</div>
+        <div class="day-card-sub" style="color:var(--amber)">363 res. históricas</div>
+      </div>
+    </div>
+
+    <div class="card-table" style="margin-top:16px">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Hotel</th><th class="num">Reservas</th><th class="num">Conv.</th><th class="num">ROI</th><th>Mejor día</th><th>Perfil</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="rank">1</td><td><strong>Manantiales Htls. Mercedes</strong></td><td class="num">35</td><td class="num c-green"><strong>3.03%</strong></td><td class="num c-green">164%</td><td><span class="day-sat">Sáb 4.5%</span></td><td><span class="badge b-green">Top performer</span></td></tr>
+            <tr><td class="rank">2</td><td>Hotel del Jardín</td><td class="num">23</td><td class="num c-green"><strong>2.79%</strong></td><td class="num c-green">36%</td><td><span class="day-fri">Vie 2.8%</span></td><td><span class="badge b-green">Top performer</span></td></tr>
+            <tr><td class="rank">3</td><td>Patagonia Travellers Hostel</td><td class="num">26</td><td class="num c-green"><strong>1.94%</strong></td><td class="num c-green">64%</td><td><span class="day-fri">Vie</span></td><td><span class="badge b-green">Top performer</span></td></tr>
+            <tr><td class="rank">4</td><td>Soltigua Apart Hotel</td><td class="num">22</td><td class="num"><strong>1.39%</strong></td><td class="num c-green">90%</td><td><span class="day-thu">Jue</span></td><td><span class="badge b-blue">Muy bueno</span></td></tr>
+            <tr><td class="rank">5</td><td>Hotel Del Dique</td><td class="num">19</td><td class="num"><strong>1.30%</strong></td><td class="num c-amber">17%</td><td><span class="day-thu">Jue</span></td><td><span class="badge b-blue">Muy bueno</span></td></tr>
+            <tr><td class="rank">6</td><td>Zentiva Pinamar Hotel</td><td class="num">24</td><td class="num"><strong>1.22%</strong></td><td class="num c-green">222%</td><td><span class="day-fri">Vie 2.2%</span></td><td><span class="badge b-green">Top performer</span></td></tr>
+            <tr><td class="rank">7</td><td>Quorum Córdoba Hotel</td><td class="num">79</td><td class="num"><strong>1.19%</strong></td><td class="num c-green">64%</td><td><span class="day-fri">Vie 1.7%</span></td><td><span class="badge b-blue">Muy bueno</span></td></tr>
+            <tr><td class="rank">8</td><td>Maré Hotel Boutique</td><td class="num">18</td><td class="num"><strong>1.16%</strong></td><td class="num c-green">148%</td><td><span class="day-fri">Vie</span></td><td><span class="badge b-blue">Muy bueno</span></td></tr>
+            <tr><td class="rank">9</td><td>Gran Hotel Mercedes</td><td class="num">15</td><td class="num"><strong>1.11%</strong></td><td class="num c-amber">14%</td><td><span class="day-fri">Vie</span></td><td><span class="badge b-blue">Muy bueno</span></td></tr>
+            <tr><td class="rank">10</td><td>Villa Don Tomás Apart Hotel</td><td class="num">28</td><td class="num"><strong>1.06%</strong></td><td class="num c-green">41%</td><td><span class="day-thu">Jue</span></td><td><span class="badge b-blue">Muy bueno</span></td></tr>
+            <tr><td class="rank">11</td><td>Hotel Quinto Centenario</td><td class="num">85</td><td class="num">0.87%</td><td class="num c-green">105%</td><td><span class="day-thu">Jue 1.4%</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">12</td><td>Ajax</td><td class="num">40</td><td class="num">0.80%</td><td class="num c-green">80%</td><td><span class="day-fri">Vie 0.99%</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">13</td><td>Hotel El Chiflón Posta Pueblo</td><td class="num">33</td><td class="num">0.73%</td><td class="num c-green">95%</td><td><span class="day-fri">Vie 0.90%</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">14</td><td>Dakar Hoteles</td><td class="num">24</td><td class="num">0.70%</td><td class="num c-green">62%</td><td><span class="day-fri">Vie 1.14%</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">15</td><td>Rayentray Grand Hotel</td><td class="num">184</td><td class="num">0.62%</td><td class="num c-green">409%</td><td><span class="day-fri">Vie 1.05%</span></td><td><span class="badge b-purple">ROI estrella</span></td></tr>
+            <tr><td class="rank">16</td><td>Farnese Apart Spa MdP</td><td class="num">69</td><td class="num">0.58%</td><td class="num c-green">274%</td><td><span class="day-thu">Jue 0.78%</span></td><td><span class="badge b-purple">ROI estrella</span></td></tr>
+            <tr><td class="rank">17</td><td>Cabañas Aldea Nevada</td><td class="num">10</td><td class="num">0.58%</td><td class="num c-green">95%</td><td><span class="day-thu">Jue 1.09%</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">18</td><td>Hotel Agua Nativa</td><td class="num">55</td><td class="num">0.49%</td><td class="num c-green">82%</td><td><span class="day-fri">Vie</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">19</td><td>Diplomatic Hotel</td><td class="num">46</td><td class="num">0.48%</td><td class="num c-green">134%</td><td><span class="day-fri">Vie</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+            <tr><td class="rank">20</td><td>Hotel Solmar</td><td class="num">39</td><td class="num">0.45%</td><td class="num c-green">52%</td><td><span class="day-fri">Vie</span></td><td><span class="badge b-blue">Bueno</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight" style="margin-top:16px">
+      <strong>Patrón clave:</strong> Viernes es el día pico para la mayoría (Rayentray, Quorum, Dakar, Ajax). Sábado lidera solo en Manantiales Hoteles Mercedes. Jueves domina en propiedades de naturaleza/escapadas (Farnese, Cabañas Aldea Nevada, Rayentray Oceano). <strong>Domingo es consistentemente el peor día del bloque</strong> — candidato a reducir presupuesto sin perder mucha conversión.
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Generado el <span>viernes 22 de mayo de 2026</span> · Fuente: <span>Informes Pxsol Ads</span> · Semanas <span>0–18</span> · <span>13.691 registros</span>
+</div>
+
+</body>
+</html>

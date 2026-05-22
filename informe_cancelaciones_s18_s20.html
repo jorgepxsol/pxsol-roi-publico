@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pxsol Ads — Análisis de Cancelaciones S18 vs S20</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F5F2EC; --bg2: #EDEAE2; --ink: #1A1814; --ink2: #6B6760; --ink3: #A09D99;
+    --accent: #C8441A; --accent2: #E8B84B;
+    --green: #2E6B3E; --green-light: #D6EDDD;
+    --red: #A32D2D; --red-light: #FAE8E8;
+    --amber: #8A5010; --amber-light: #FDF0D5;
+    --blue: #1A4A7A; --blue-light: #DDEAF8;
+    --purple: #4A3A8A; --purple-light: #EBEBFA;
+    --border: #D9D5CC; --radius: 6px;
+  }
+  body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; min-height: 100vh; }
+  .cover { background: var(--ink); color: var(--bg); padding: 80px 60px 60px; position: relative; overflow: hidden; }
+  .cover::before { content: ''; position: absolute; top: -80px; right: -80px; width: 400px; height: 400px; border-radius: 50%; background: var(--red); opacity: 0.12; }
+  .cover::after { content: ''; position: absolute; bottom: -40px; left: 40%; width: 200px; height: 200px; border-radius: 50%; background: var(--accent2); opacity: 0.10; }
+  .cover-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 20px; }
+  .cover h1 { font-family: 'DM Serif Display', serif; font-size: clamp(36px, 6vw, 72px); line-height: 1.05; margin-bottom: 24px; position: relative; z-index: 1; }
+  .cover h1 em { color: var(--accent2); font-style: italic; }
+  .cover-meta { display: flex; gap: 40px; flex-wrap: wrap; margin-top: 40px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.15); }
+  .cover-meta-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+  .cover-meta-value { font-size: 15px; font-weight: 500; }
+  .toc { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 20px 60px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; position: sticky; top: 0; z-index: 100; }
+  .toc-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink3); margin-right: 8px; }
+  .toc a { font-size: 12px; font-weight: 500; color: var(--ink2); text-decoration: none; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); transition: all 0.15s; }
+  .toc a:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .main { max-width: 1100px; margin: 0 auto; padding: 0 40px 80px; }
+  .section { margin-top: 64px; scroll-margin-top: 70px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--ink); }
+  .section-num { font-family: 'DM Serif Display', serif; font-size: 48px; line-height: 1; color: var(--accent); opacity: 0.4; min-width: 48px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.2; }
+  .section-sub { font-size: 13px; color: var(--ink3); margin-top: 4px; font-family: 'DM Mono', monospace; letter-spacing: 0.04em; }
+  .callout { border-left: 3px solid var(--accent2); background: var(--amber-light); padding: 12px 16px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 13px; color: var(--amber); margin-bottom: 20px; }
+  .callout strong { color: var(--ink); }
+  .callout-red { border-left: 3px solid var(--red); background: var(--red-light); padding: 12px 16px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 13px; color: var(--red); margin-bottom: 20px; }
+  .callout-red strong { color: var(--ink); }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 6px; font-weight: 500; }
+  .metric-value { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.1; color: var(--ink); }
+  .metric-sub { font-size: 12px; color: var(--ink3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+  .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink3); padding: 8px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg2); }
+  .num { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .card-table { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .b-red { background: var(--red-light); color: var(--red); }
+  .b-amber { background: var(--amber-light); color: var(--amber); }
+  .b-green { background: var(--green-light); color: var(--green); }
+  .b-blue { background: var(--blue-light); color: var(--blue); }
+  .b-purple { background: var(--purple-light); color: var(--purple); }
+  .c-green { color: var(--green); font-weight: 500; }
+  .c-red { color: var(--red); font-weight: 500; }
+  .c-amber { color: var(--amber); font-weight: 500; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+  .insight { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; font-size: 13px; color: var(--ink2); margin-top: 16px; }
+  .insight strong { color: var(--ink); }
+  .rank { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); min-width: 20px; }
+  .row-alert td { background: var(--red-light); }
+  .row-warn td { background: var(--amber-light); }
+  .row-ok td { background: var(--green-light); }
+  .footer { background: var(--ink); color: rgba(255,255,255,0.4); text-align: center; padding: 40px 20px; font-size: 12px; font-family: 'DM Mono', monospace; }
+  .footer span { color: rgba(255,255,255,0.7); }
+  .delta-up { color: var(--red); font-weight: 600; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .delta-down { color: var(--green); font-weight: 600; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .delta-same { color: var(--amber); font-weight: 600; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .compare-bar { display: flex; gap: 24px; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; }
+  .compare-col { flex: 1; }
+  .compare-week { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink3); margin-bottom: 8px; }
+  .compare-val { font-family: 'DM Serif Display', serif; font-size: 32px; }
+  .compare-sub { font-size: 12px; color: var(--ink3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .compare-divider { width: 1px; background: var(--border); }
+  .net-neg { color: var(--red); font-family: 'DM Mono', monospace; font-weight: 700; }
+  .net-pos { color: var(--green); font-family: 'DM Mono', monospace; font-weight: 700; }
+  .net-zero { color: var(--amber); font-family: 'DM Mono', monospace; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-label">Pxsol Ads · Análisis de cancelaciones</div>
+  <h1>Informe<br><em>Cancelaciones</em><br>S18 vs S20</h1>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fecha</div>
+      <div class="cover-meta-value">Jueves 22 de mayo, 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Semanas comparadas</div>
+      <div class="cover-meta-value">S18 (3–9 may) · S20 (17–21 may)</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fuente</div>
+      <div class="cover-meta-value">Informes Pxsol Ads · Google Sheets</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Hoteles analizados</div>
+      <div class="cover-meta-value">93 en S18 · 89 en S20</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="toc">
+  <span class="toc-label">Secciones</span>
+  <a href="#s1">Resumen global</a>
+  <a href="#s2">Balance neto negativo</a>
+  <a href="#s3">Mayor monto cancelado</a>
+  <a href="#s4">Reincidentes</a>
+  <a href="#s5">Nuevas cancelaciones S20</a>
+  <a href="#s6">Mejoraron</a>
+</nav>
+
+<div class="main">
+
+  <!-- CONTEXT CALLOUT -->
+  <div class="section">
+    <div class="callout">
+      <strong>Contexto:</strong> S18 cubre 7 días completos (3–9 mayo). S20 cubre 5 días parciales (17–21 mayo). A pesar de tener menos días, S20 registra un <strong>monto monetario de cancelaciones mayor</strong> que S18 — señal de alerta estructural.
+    </div>
+
+    <!-- RESUMEN GLOBAL id=s1 -->
+    <div id="s1">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <div>
+          <div class="section-title">Resumen global — S18 vs S20</div>
+          <div class="section-sub">Volumen de cancelaciones, balance neto y monto recuperado/perdido</div>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Cancelaciones S18</div>
+          <div class="metric-value c-red">46</div>
+          <div class="metric-sub">25 hoteles · 7 días</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Cancelaciones S20</div>
+          <div class="metric-value c-amber">27</div>
+          <div class="metric-sub">19 hoteles · 5 días (parcial)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Monto cancelado S18</div>
+          <div class="metric-value">$4.84M</div>
+          <div class="metric-sub">H.Cancelaciones acumulado</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Monto cancelado S20</div>
+          <div class="metric-value c-red">$5.78M</div>
+          <div class="metric-sub">+19% vs S18 en menos días</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="compare-bar" style="flex-direction:column;gap:12px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);">Semana 18 — 7 días</div>
+          <table style="font-size:13px;">
+            <thead><tr><th>Métrica</th><th class="num">Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Hoteles con cancelaciones</td><td class="num">25 / 93</td></tr>
+              <tr><td>Total cancel_bookings</td><td class="num c-red">46</td></tr>
+              <tr><td>Balance neto negativo (C > B)</td><td class="num c-red">8 hoteles</td></tr>
+              <tr><td>Mayor cancelador (unidades)</td><td class="num">Grand Internacional (6)</td></tr>
+              <tr><td>Mayor monto cancelado</td><td class="num">Soltigua ($799K)</td></tr>
+              <tr><td>H.Cancelaciones &gt; H.Ventas</td><td class="num c-red">3 hoteles</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="compare-bar" style="flex-direction:column;gap:12px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);">Semana 20 — 5 días (parcial)</div>
+          <table style="font-size:13px;">
+            <thead><tr><th>Métrica</th><th class="num">Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Hoteles con cancelaciones</td><td class="num">19 / 89</td></tr>
+              <tr><td>Total cancel_bookings</td><td class="num c-amber">27</td></tr>
+              <tr><td>Balance neto negativo (C > B)</td><td class="num c-amber">6 hoteles</td></tr>
+              <tr><td>Mayor cancelador (unidades)</td><td class="num">Reñaca House / Piattelli (3)</td></tr>
+              <tr><td>Mayor monto cancelado</td><td class="num">Diplomatic ($1.08M)</td></tr>
+              <tr><td>H.Cancelaciones &gt; H.Ventas</td><td class="num c-red">4 hoteles</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="insight">
+        <strong>Dato clave:</strong> El volumen de cancelaciones bajó (46 → 27), pero el <strong>monto monetario subió</strong> de $4.84M a $5.78M. Esto indica que si bien hay menos hoteles cancelando, los que cancelan lo hacen con reservas de mayor valor promedio. El Diplomatic Hotel por sí solo pasó de $601K a $1.08M en cancelaciones.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div>
+        <div class="section-title">Balance neto negativo</div>
+        <div class="section-sub">Hoteles donde las cancelaciones superan las reservas — el caso más crítico</div>
+      </div>
+    </div>
+
+    <div class="callout-red">
+      Un balance neto negativo significa que el hotel <strong>destruyó más reservas de las que generó</strong> en la semana. El sistema les siguió mostrando anuncios y cobrando costos mientras el inventario neto caía.
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Semana 18 — Balance neto negativo <span class="badge b-red" style="margin-left:6px">8 hoteles</span></p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hotel</th><th class="num">Reservas</th><th class="num">Cancelac.</th><th class="num">Neto</th><th class="num">Gasto</th></tr></thead>
+              <tbody>
+                <tr class="row-alert"><td><strong>Grand Internacional Hotel</strong></td><td class="num">0</td><td class="num">6</td><td class="num net-neg">–6</td><td class="num">$71.335</td></tr>
+                <tr class="row-alert"><td>Raíces Esturión Hotel</td><td class="num">0</td><td class="num">3</td><td class="num net-neg">–3</td><td class="num">$183.762</td></tr>
+                <tr class="row-alert"><td>Farnese Apart Spa MdP</td><td class="num">2</td><td class="num">3</td><td class="num net-neg">–1</td><td class="num">$67.586</td></tr>
+                <tr class="row-alert"><td>Hotel Termas de Balde</td><td class="num">0</td><td class="num">2</td><td class="num net-neg">–2</td><td class="num">$18.524</td></tr>
+                <tr class="row-alert"><td>Bungalows Mexico</td><td class="num">0</td><td class="num">2</td><td class="num net-neg">–2</td><td class="num">$0,06</td></tr>
+                <tr class="row-warn"><td>Quijano Apart &amp; Suites</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td class="num">$25.534</td></tr>
+                <tr class="row-warn"><td>Hotel Solmar</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td class="num">$17.182</td></tr>
+                <tr class="row-warn"><td>Rayentray Oceano</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td class="num">$21.893</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Semana 20 — Balance neto negativo <span class="badge b-amber" style="margin-left:6px">6 hoteles</span></p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hotel</th><th class="num">Reservas</th><th class="num">Cancelac.</th><th class="num">Neto</th><th class="num">Estado</th></tr></thead>
+              <tbody>
+                <tr class="row-alert"><td><strong>Raíces Esturión Hotel</strong></td><td class="num">0</td><td class="num">2</td><td class="num net-neg">–2</td><td><span class="badge b-red">Reincidente</span></td></tr>
+                <tr class="row-alert"><td>Hotel Raíces Aconcagua</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td><span class="badge b-red">Nuevo</span></td></tr>
+                <tr class="row-alert"><td>Arcos Hotel</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td><span class="badge b-red">Reincidente</span></td></tr>
+                <tr class="row-warn"><td>Mito Casa Hotel</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td><span class="badge b-amber">Nuevo</span></td></tr>
+                <tr class="row-warn"><td>Hotel Del Dique</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td><span class="badge b-amber">Nuevo</span></td></tr>
+                <tr class="row-warn"><td>SAMAY HOTEL BOUTIQUE</td><td class="num">0</td><td class="num">1</td><td class="num net-neg">–1</td><td><span class="badge b-amber">Nuevo</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Raíces Esturión Hotel</strong> y <strong>Arcos Hotel</strong> son los únicos reincidentes con balance neto negativo en ambas semanas — sin ninguna reserva nueva para compensar. El caso del Raíces Esturión es estructural: acumula cancelaciones semana tras semana sin conversión.
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div>
+        <div class="section-title">Mayor monto cancelado (H.Cancelaciones)</div>
+        <div class="section-sub">Valor monetario de reservas canceladas · Hoteles con mayor impacto financiero</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Nota metodológica:</strong> H.Cancelaciones registra el valor de reservas anuladas, que puede incluir cancelaciones de semanas anteriores procesadas tardíamente. Un monto alto con pocas unidades canceladas indica reservas de alto valor promedio.
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Top cancelaciones monetarias — S18</p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Hotel</th><th class="num">H.Cancelac.</th><th class="num">vs H.Ventas</th><th class="num">Cancel. U.</th></tr></thead>
+              <tbody>
+                <tr class="row-alert"><td class="rank">1</td><td><strong>Soltigua Apart Hotel</strong></td><td class="num">$799.396</td><td class="num c-red">3.7× ventas</td><td class="num">2</td></tr>
+                <tr class="row-alert"><td class="rank">2</td><td>Farnese Apart Spa MdP</td><td class="num">$715.000</td><td class="num c-red">1.5× ventas</td><td class="num">3</td></tr>
+                <tr class="row-warn"><td class="rank">3</td><td>Hotel Borde Luz</td><td class="num">$653.739</td><td class="num c-amber">65% ventas</td><td class="num">2</td></tr>
+                <tr><td class="rank">4</td><td>Diplomatic Hotel</td><td class="num">$601.782</td><td class="num">8% ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">5</td><td>HJ Undici República</td><td class="num">$499.253</td><td class="num">17% ventas</td><td class="num">2</td></tr>
+                <tr><td class="rank">6</td><td>Bungalows Mexico</td><td class="num">$330.578</td><td class="num c-red">sin ventas</td><td class="num">2</td></tr>
+                <tr><td class="rank">7</td><td>Rayentray Oceano</td><td class="num">$256.165</td><td class="num c-red">sin ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">8</td><td>Maré Hotel Boutique</td><td class="num">$211.547</td><td class="num c-red">1.6× ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">9</td><td>Cabañas Hermansen</td><td class="num">$196.320</td><td class="num">8% ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">10</td><td>Cabañas La Bella Durmiente</td><td class="num">$173.226</td><td class="num">37% ventas</td><td class="num">1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Top cancelaciones monetarias — S20</p>
+        <div class="card-table">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Hotel</th><th class="num">H.Cancelac.</th><th class="num">vs H.Ventas</th><th class="num">Cancel. U.</th></tr></thead>
+              <tbody>
+                <tr class="row-alert"><td class="rank">1</td><td><strong>Diplomatic Hotel</strong></td><td class="num c-red">$1.082.090</td><td class="num">33% ventas</td><td class="num">1</td></tr>
+                <tr class="row-alert"><td class="rank">2</td><td>Piattelli Wine Resort</td><td class="num">$865.518</td><td class="num">28% ventas</td><td class="num">3</td></tr>
+                <tr class="row-alert"><td class="rank">3</td><td>Reñaca House Hotel</td><td class="num">$844.214</td><td class="num c-red">1.6× ventas</td><td class="num">3</td></tr>
+                <tr class="row-warn"><td class="rank">4</td><td>Quinto Centenario</td><td class="num">$671.660</td><td class="num c-red">1.03× ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">5</td><td>HJ Undici República</td><td class="num">$590.507</td><td class="num">26% ventas</td><td class="num">4</td></tr>
+                <tr><td class="rank">6</td><td>Villa Mansa Wine Hotel</td><td class="num">$550.159</td><td class="num c-red">2.9× ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">7</td><td>Cabañas La Bella Durmiente</td><td class="num">$459.342</td><td class="num c-red">1.3× ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">8</td><td>Maré Hotel Boutique</td><td class="num">$341.225</td><td class="num c-red">1.6× ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">9</td><td>Dakar Hoteles</td><td class="num">$199.084</td><td class="num">6% ventas</td><td class="num">1</td></tr>
+                <tr><td class="rank">10</td><td>Manantiales Mercedes</td><td class="num">$115.702</td><td class="num">22% ventas</td><td class="num">1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Hoteles donde H.Cancelaciones supera H.Ventas en S20:</strong> Villa Mansa (2.9×), Reñaca House (1.6×), Maré Hotel (1.6×), Quinto Centenario (1.03×), Bella Durmiente (1.3×). Estos hoteles tuvieron un resultado <strong>neto negativo en ingresos</strong> — las cancelaciones destruyeron más valor del que generaron las reservas nuevas.
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div>
+        <div class="section-title">Hoteles reincidentes</div>
+        <div class="section-sub">Cancelaciones en S18 Y en S20 — patrón sostenido de anulaciones</div>
+      </div>
+    </div>
+
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Hotel</th>
+              <th class="num">Cancel. S18</th>
+              <th class="num">Cancel. S20</th>
+              <th class="num">Variación</th>
+              <th class="num">Monto S18</th>
+              <th class="num">Monto S20</th>
+              <th>Tendencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-alert">
+              <td><strong>Howard Johnson Undici</strong></td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num delta-up">+100%</td>
+              <td class="num">$499.253</td>
+              <td class="num">$590.507</td>
+              <td><span class="badge b-red">Empeora</span></td>
+            </tr>
+            <tr class="row-alert">
+              <td>Piattelli Wine Resort</td>
+              <td class="num">3</td>
+              <td class="num">3</td>
+              <td class="num delta-same">0%</td>
+              <td class="num">$0</td>
+              <td class="num c-red">$865.518</td>
+              <td><span class="badge b-red">Monto explota</span></td>
+            </tr>
+            <tr class="row-alert">
+              <td>Cabañas La Bella Durmiente</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num delta-same">0%</td>
+              <td class="num">$173.226</td>
+              <td class="num c-red">$459.342</td>
+              <td><span class="badge b-red">Monto sube</span></td>
+            </tr>
+            <tr class="row-alert">
+              <td>Maré Hotel Boutique</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num delta-same">0%</td>
+              <td class="num">$211.547</td>
+              <td class="num">$341.225</td>
+              <td><span class="badge b-amber">Monto sube</span></td>
+            </tr>
+            <tr class="row-alert">
+              <td>Raíces Esturión Hotel</td>
+              <td class="num">3</td>
+              <td class="num">2</td>
+              <td class="num delta-down">–33%</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td><span class="badge b-amber">Mejora leve</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td>Diplomatic Hotel</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num delta-same">0%</td>
+              <td class="num">$601.782</td>
+              <td class="num c-red">$1.082.090</td>
+              <td><span class="badge b-red">Monto +79%</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td>Arcos Hotel</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num delta-same">0%</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td><span class="badge b-amber">Reincidente</span></td>
+            </tr>
+            <tr>
+              <td>Hotel Quinto Centenario</td>
+              <td class="num">4</td>
+              <td class="num">1</td>
+              <td class="num delta-down">–75%</td>
+              <td class="num">$165.046</td>
+              <td class="num">$671.660</td>
+              <td><span class="badge b-amber">Unidades bajan, monto sube</span></td>
+            </tr>
+            <tr>
+              <td>Quorum Córdoba Hotel</td>
+              <td class="num">2</td>
+              <td class="num">1</td>
+              <td class="num delta-down">–50%</td>
+              <td class="num">$125.879</td>
+              <td class="num">—</td>
+              <td><span class="badge b-green">Mejora</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Patrón preocupante en 3 hoteles:</strong> Piattelli, Bella Durmiente y Diplomatic mantienen el mismo número de cancelaciones pero el <strong>monto monetario se disparó</strong>. Esto sugiere que se están cancelando reservas de temporada alta / mayor valor. El Quinto Centenario tiene el caso inverso: bajó de 4 a 1 cancelación en unidades, pero el monto subió de $165K a $671K — una sola cancelación de altísimo valor.
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div>
+        <div class="section-title">Nuevas cancelaciones en S20</div>
+        <div class="section-sub">Hoteles sin cancelaciones en S18 que aparecen por primera vez con anulaciones en S20</div>
+      </div>
+    </div>
+
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Hotel</th>
+              <th class="num">S18 Cancel.</th>
+              <th class="num">S20 Cancel.</th>
+              <th class="num">S20 Reservas</th>
+              <th class="num">Balance neto</th>
+              <th class="num">H.Cancelac. S20</th>
+              <th class="num">ROI S20</th>
+              <th>Alerta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-alert">
+              <td class="rank">1</td>
+              <td><strong>Reñaca House Hotel</strong></td>
+              <td class="num">0</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num net-pos">+2</td>
+              <td class="num c-red">$844.214</td>
+              <td class="num c-green">144%</td>
+              <td><span class="badge b-red">Monto crítico</span></td>
+            </tr>
+            <tr class="row-alert">
+              <td class="rank">2</td>
+              <td>Villa Mansa Wine Hotel</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num net-zero">0</td>
+              <td class="num c-red">$550.159</td>
+              <td class="num c-green">10%</td>
+              <td><span class="badge b-red">Cancela = reserva</span></td>
+            </tr>
+            <tr class="row-alert">
+              <td class="rank">3</td>
+              <td>Hotel Raíces Aconcagua</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num net-neg">–1</td>
+              <td class="num">—</td>
+              <td class="num c-red">–100%</td>
+              <td><span class="badge b-red">Neto negativo</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td class="rank">4</td>
+              <td>Dakar Hoteles</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">11</td>
+              <td class="num net-pos">+10</td>
+              <td class="num">$199.084</td>
+              <td class="num c-green">216%</td>
+              <td><span class="badge b-amber">Absorbe bien</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td class="rank">5</td>
+              <td>Manantiales Mercedes</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num net-pos">+1</td>
+              <td class="num">$115.702</td>
+              <td class="num c-green">189%</td>
+              <td><span class="badge b-amber">Controlado</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td class="rank">6</td>
+              <td>Hotel Del Dique</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num net-neg">–1</td>
+              <td class="num">—</td>
+              <td class="num c-red">–100%</td>
+              <td><span class="badge b-red">Neto negativo</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td class="rank">7</td>
+              <td>Mito Casa Hotel</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num net-neg">–1</td>
+              <td class="num">$64.985</td>
+              <td class="num c-red">–100%</td>
+              <td><span class="badge b-red">Neto negativo</span></td>
+            </tr>
+            <tr>
+              <td class="rank">8</td>
+              <td>SAMAY HOTEL BOUTIQUE</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num net-neg">–1</td>
+              <td class="num">—</td>
+              <td class="num c-red">–100%</td>
+              <td><span class="badge b-red">Neto negativo</span></td>
+            </tr>
+            <tr>
+              <td class="rank">9</td>
+              <td>Bromelia Hotel Boutique</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">1</td>
+              <td class="num net-zero">0</td>
+              <td class="num">—</td>
+              <td class="num c-green">57%</td>
+              <td><span class="badge b-amber">Cancelación sin monto</span></td>
+            </tr>
+            <tr>
+              <td class="rank">10</td>
+              <td>Gran Hotel Mercedes</td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num net-pos">+1</td>
+              <td class="num">—</td>
+              <td class="num c-green">7%</td>
+              <td><span class="badge b-blue">Absorbe</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Reñaca House Hotel</strong> es la nueva alerta más urgente de S20: apareció con 3 cancelaciones y un monto de $844K (nunca había cancelado en S18). A pesar de tener 5 reservas nuevas, el valor cancelado supera el valor generado. <strong>Dakar Hoteles</strong> es el contrapunto positivo: 1 cancelación absorbida por 11 reservas — ROI de 216%.
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div>
+        <div class="section-title">Hoteles que mejoraron</div>
+        <div class="section-sub">Tenían cancelaciones en S18 y llegaron a S20 con cancelaciones = 0</div>
+      </div>
+    </div>
+
+    <div class="callout" style="border-color:var(--green);background:var(--green-light);color:var(--green);">
+      <strong style="color:var(--ink)">Señal positiva:</strong> 15 hoteles que registraron cancelaciones en S18 no tuvieron ninguna en S20. Es la contracara del problema — algunos hoteles están resolviendo la tasa de cancelación semana a semana.
+    </div>
+
+    <div class="card-table">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Hotel</th>
+              <th class="num">Cancel. S18</th>
+              <th class="num">Monto S18</th>
+              <th class="num">Cancel. S20</th>
+              <th class="num">ROI S18</th>
+              <th class="num">ROI S20</th>
+              <th>Impacto</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-ok">
+              <td class="rank">1</td><td><strong>Grand Internacional Hotel</strong></td>
+              <td class="num">6</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-red">–100%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-green">Sin cancelar</span></td>
+            </tr>
+            <tr class="row-ok">
+              <td class="rank">2</td><td>Soltigua Apart Hotel</td>
+              <td class="num">2</td><td class="num">$799.396</td><td class="num c-green">0</td>
+              <td class="num c-red">–10%</td><td class="num c-red">–69%</td>
+              <td><span class="badge b-green">Sin cancelar</span></td>
+            </tr>
+            <tr class="row-ok">
+              <td class="rank">3</td><td>Farnese Apart Spa MdP</td>
+              <td class="num">3</td><td class="num">$715.000</td><td class="num c-green">0</td>
+              <td class="num c-red">–2%</td><td class="num c-green">+58%</td>
+              <td><span class="badge b-green">Mejora total</span></td>
+            </tr>
+            <tr class="row-ok">
+              <td class="rank">4</td><td>Hotel Borde Luz</td>
+              <td class="num">2</td><td class="num">$653.739</td><td class="num c-green">0</td>
+              <td class="num c-green">+238%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar pero perdió conv.</span></td>
+            </tr>
+            <tr class="row-ok">
+              <td class="rank">5</td><td>Bungalows Mexico</td>
+              <td class="num">2</td><td class="num">$330.578</td><td class="num c-green">0</td>
+              <td class="num c-red">–100%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-green">Sin cancelar</span></td>
+            </tr>
+            <tr class="row-ok">
+              <td class="rank">6</td><td>Rayentray Oceano</td>
+              <td class="num">1</td><td class="num">$256.165</td><td class="num c-green">0</td>
+              <td class="num c-red">–100%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-green">Sin cancelar</span></td>
+            </tr>
+            <tr>
+              <td class="rank">7</td><td>Hotel Termas de Balde</td>
+              <td class="num">2</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-red">–100%</td><td class="num c-red">–33%</td>
+              <td><span class="badge b-green">Sin cancelar</span></td>
+            </tr>
+            <tr>
+              <td class="rank">8</td><td>Cabañas Hermansen</td>
+              <td class="num">1</td><td class="num">$196.320</td><td class="num c-green">0</td>
+              <td class="num c-green">+277%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar, perdió conv.</span></td>
+            </tr>
+            <tr>
+              <td class="rank">9</td><td>Patagonia Hotel</td>
+              <td class="num">1</td><td class="num">$110.500</td><td class="num c-green">0</td>
+              <td class="num c-green">+24%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar, perdió conv.</span></td>
+            </tr>
+            <tr>
+              <td class="rank">10</td><td>Hotel Plaza</td>
+              <td class="num">1</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-green">+37%</td><td class="num c-green">+235%</td>
+              <td><span class="badge b-green">Mejor caso: ROI + sin cancelar</span></td>
+            </tr>
+            <tr>
+              <td class="rank">11</td><td>Hotel El Chiflón Posta Pueblo</td>
+              <td class="num">1</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-green">+21%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar, perdió conv.</span></td>
+            </tr>
+            <tr>
+              <td class="rank">12</td><td>HDA Hotel &amp; Spa All Inclusive</td>
+              <td class="num">1</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-green">+232%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar, perdió conv.</span></td>
+            </tr>
+            <tr>
+              <td class="rank">13</td><td>La Casa de Melgar</td>
+              <td class="num">1</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-green">+236%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar, perdió conv.</span></td>
+            </tr>
+            <tr>
+              <td class="rank">14</td><td>Patagonia Travellers Hostel</td>
+              <td class="num">1</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-green">+348%</td><td class="num c-red">–100%</td>
+              <td><span class="badge b-amber">Sin cancelar, perdió conv.</span></td>
+            </tr>
+            <tr>
+              <td class="rank">15</td><td>Hotel Solmar</td>
+              <td class="num">1</td><td class="num">—</td><td class="num c-green">0</td>
+              <td class="num c-red">–100%</td><td class="num c-green">+34%</td>
+              <td><span class="badge b-green">Mejoró en todo</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight">
+      <strong>Hotel Plaza</strong> y <strong>Hotel Solmar</strong> son los únicos que mejoraron en cancelaciones Y en ROI entre semanas. <strong>Farnese Apart Spa</strong> eliminó 3 cancelaciones y pasó de ROI –2% a +58% — la recuperación más limpia del grupo. El patrón negativo es que varios hoteles sin cancelaciones en S20 aun así perdieron toda conversión (0 reservas) — resolver las cancelaciones no fue suficiente para recuperar el rendimiento.
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Generado el <span>jueves 22 de mayo de 2026</span> · Fuente: <span>Informes Pxsol Ads</span> · Semanas <span>18 y 20</span> · Comparativo de cancelaciones
+</div>
+
+</body>
+</html>
